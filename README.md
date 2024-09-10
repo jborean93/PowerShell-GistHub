@@ -1,4 +1,6 @@
 # GistHub
+<img align="left" src=".github/GistHub.png" width="100" height="100">
+
 [![Test workflow](https://github.com/jborean93/PowerShell-GistHub/workflows/Test%20/badge.svg)](https://github.com/jborean93/PowerShell-GistHub/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/jborean93/PowerShell-GistHub/branch/main/graph/badge.svg?token=b51IOhpLfQ)](https://codecov.io/gh/jborean93/PowerShell-GistHub)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/GistHub.svg)](https://www.powershellgallery.com/packages/GistHub)
@@ -7,8 +9,6 @@
 PowerShell Provider implementation to interact with GitHub Gists.
 
 See [GistHub index](docs/en-US/GistHub.md) and [about_GistHub](./docs/en-US/about_GistHub.md) for more details.
-
-![alt text](.github/GistHub.png)
 
 ## Authentication
 While the `GistProvider` can get gists without authentication, GitHub limits the number of requests a non-authenticated session to 50 per hour.
@@ -21,6 +21,8 @@ To set the default access token using OAuth interactively you can run:
 ```powershell
 Connect-GistHub -OAuthDeviceCode
 ```
+
+This will use the [PowerShell GistHub GitHub App](https://github.com/apps/powershell-gisthub).
 
 _Note: Support for the refresh token is not yet implemented._
 
