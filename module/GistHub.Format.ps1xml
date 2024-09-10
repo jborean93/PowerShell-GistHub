@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <Name>GistHub.Shared.GistInfo</Name>
+      <GroupBy>
+        <PropertyName>Owner</PropertyName>
+      </GroupBy>
+      <ViewSelectedBy>
+        <TypeName>GistHub.Shared.GistInfo</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Width>32</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Description</Label>
+            <Width>48</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Files</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $sb = [System.Text.StringBuilder]::new()
+                  $desc = $_.Description
+
+                  $line = 0
+                  while ($desc) {
+                    $lineLength = [Math]::Min(48, $desc.Length)
+                    $null = $sb.Append($desc.Substring(0, $lineLength))
+                    $desc = $desc.Substring($lineLength)
+                    $line++
+
+                    if ($line -eq $_.Files.Length) {
+                      $null = $sb.Remove($sb.Length - 1, 1)
+                      $null = $sb.Append("$([char]0x2026)")
+                      break
+                    }
+                  }
+
+                  $sb.ToString()
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                $_.Files.Name -join ([Environment]::NewLine)
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>GistHub.Shared.GistFile</Name>
+      <GroupBy>
+        <Label>Gist</Label>
+        <ScriptBlock>"$($_.Gist.Owner)/$($_.Gist.Id)"</ScriptBlock>
+      </GroupBy>
+      <ViewSelectedBy>
+        <TypeName>GistHub.Shared.GistFile</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Width>15</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>10</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader />
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Language</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Length</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>

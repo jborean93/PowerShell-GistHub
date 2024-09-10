@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+    S.M.A brings in these deps but we don't rely on it directly. It's up to
+    the user to run with a newer PowerShell version that isn't affected.
+    -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-447r-wph3-92pm" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-555c-2p6r-68mm" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="System.Management.Automation" Version="7.2.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
+
+    <ProjectReference Include="../GistHub.Shared/GistHub.Shared.csproj" />
+    <InternalsVisibleTo Include="GistHubTests" />
+  </ItemGroup>
+</Project>
