@@ -8,6 +8,8 @@ PowerShell Provider implementation to interact with GitHub Gists.
 
 See [GistHub index](docs/en-US/GistHub.md) and [about_GistHub](./docs/en-US/about_GistHub.md) for more details.
 
+![alt text](.github/GistHub.png)
+
 ## Authentication
 While the `GistProvider` can get gists without authentication, GitHub limits the number of requests a non-authenticated session to 50 per hour.
 This limit will be reached quickly during normal operations due to the redundant calls the PowerShell provider API does.
