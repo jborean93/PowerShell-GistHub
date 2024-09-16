@@ -20,10 +20,7 @@ internal sealed partial class GitHubClient
         AsyncPipeline? pipeline = null,
         CancellationToken cancellationToken = default)
     {
-        JsonSerializerOptions options = new()
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
+        JsonSerializerOptions options = GetNullIgnoreOptions();
         HttpRequestMessage request = new(HttpMethod.Post, $"{GitHubApiUrl}gists")
         {
             Content = new StringContent(
@@ -31,12 +28,20 @@ internal sealed partial class GitHubClient
                 Encoding.UTF8)
         };
 
+#if NET60_OR_GREATER
         return await SendMessageWithJsonResponseAsync(
             request,
             GitHubJsonContext.Default.Gist,
             token,
             pipeline,
             cancellationToken).ConfigureAwait(false);
+#else
+        return await SendMessageWithJsonResponseAsync<Gist>(
+            request,
+            token,
+            pipeline,
+            cancellationToken).ConfigureAwait(false);
+#endif
     }
 
     public static async Task DeleteGistAsync(
@@ -73,10 +78,16 @@ internal sealed partial class GitHubClient
         }
         response.EnsureSuccessStatusCode();
 
+#if NET60_OR_GREATER
         return await ReadResponseJsonAsync(
             response,
             GitHubJsonContext.Default.Gist,
             cancellationToken).ConfigureAwait(false);
+#else
+        return await ReadResponseJsonAsync<Gist>(
+            response,
+            cancellationToken).ConfigureAwait(false);
+#endif
     }
 
     public static async Task<Stream> GetGistFileStreamAsync(
@@ -120,10 +131,16 @@ internal sealed partial class GitHubClient
                 pipeline,
                 cancellationToken).ConfigureAwait(false);
 
+#if NET60_OR_GREATER
             Gist[] gists = await ReadResponseJsonAsync(
                 response,
                 GitHubJsonContext.Default.GistArray,
                 cancellationToken).ConfigureAwait(false);
+#else
+            Gist[] gists = await ReadResponseJsonAsync<Gist[]>(
+                response,
+                cancellationToken).ConfigureAwait(false);
+#endif
             yield return gists;
 
             if (
@@ -145,10 +162,7 @@ internal sealed partial class GitHubClient
         AsyncPipeline? pipeline = null,
         CancellationToken cancellationToken = default)
     {
-        JsonSerializerOptions options = new()
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
+        JsonSerializerOptions options = GetNullIgnoreOptions();
         HttpRequestMessage request = new(new HttpMethod("PATCH"), $"{GitHubApiUrl}gists/{gistId}")
         {
             Content = new StringContent(
@@ -160,12 +174,34 @@ internal sealed partial class GitHubClient
         string contentType = responseAsBase64Content ? "base64" : "raw";
         request.Headers.Accept.Add(new($"application/vnd.github.{contentType}+json"));
 
+#if NET60_OR_GREATER
         return await SendMessageWithJsonResponseAsync(
             request,
             GitHubJsonContext.Default.Gist,
             token,
             pipeline,
             cancellationToken).ConfigureAwait(false);
+#else
+        return await SendMessageWithJsonResponseAsync<Gist>(
+            request,
+            token,
+            pipeline,
+            cancellationToken).ConfigureAwait(false);
+#endif
+    }
+
+    private static JsonSerializerOptions GetNullIgnoreOptions()
+    {
+        return new()
+        {
+#if NET60_OR_GREATER
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+#else
+#pragma warning disable SYSLIB0020 // net472 uses older lib with only this prop
+            IgnoreNullValues = true
+#pragma warning restore SYSLIB0020
+#endif
+        };
     }
 }
 

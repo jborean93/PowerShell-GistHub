@@ -1,3 +1,4 @@
+#if NET60_OR_GREATER
 using System.Text.Json.Serialization;
 
 namespace GistHub.GitHub;
@@ -10,3 +11,4 @@ namespace GistHub.GitHub;
 [JsonSerializable(typeof(UpdateGist))]
 internal partial class GitHubJsonContext : JsonSerializerContext
 { }
+#endif

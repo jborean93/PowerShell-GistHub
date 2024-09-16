@@ -4,9 +4,12 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
+
+#if NET60_OR_GREATER
+using System.Text.Json.Serialization.Metadata;
+#endif
 
 namespace GistHub.GitHub;
 
@@ -71,7 +74,9 @@ internal sealed partial class GitHubClient
 
     private static async Task<T> SendMessageWithJsonResponseAsync<T>(
         HttpRequestMessage request,
+#if NET60_OR_GREATER
         JsonTypeInfo<T> jsonType,
+#endif
         BearerToken? token,
         AsyncPipeline? pipeline,
         CancellationToken cancellationToken)
@@ -82,10 +87,16 @@ internal sealed partial class GitHubClient
             false,
             pipeline,
             cancellationToken).ConfigureAwait(false);
+#if NET60_OR_GREATER
         return await ReadResponseJsonAsync(
             response,
             jsonType,
             cancellationToken).ConfigureAwait(false);
+#else
+        return await ReadResponseJsonAsync<T>(
+            response,
+            cancellationToken).ConfigureAwait(false);
+#endif
     }
 
     private static async Task<HttpResponseMessage> SendMessageAsync(
@@ -118,11 +129,17 @@ internal sealed partial class GitHubClient
 
     private static async Task<T> ReadResponseJsonAsync<T>(
         HttpResponseMessage response,
+#if NET60_OR_GREATER
         JsonTypeInfo<T> jsonType,
+#endif
         CancellationToken cancellationToken)
     {
         Stream responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+#if NET60_OR_GREATER
         T? parsedResponse = await JsonSerializer.DeserializeAsync(responseStream, jsonType, cancellationToken);
+#else
+        T? parsedResponse = await JsonSerializer.DeserializeAsync<T>(responseStream, cancellationToken: cancellationToken);
+#endif
         Debug.Assert(parsedResponse is not null);
         return parsedResponse!;
     }

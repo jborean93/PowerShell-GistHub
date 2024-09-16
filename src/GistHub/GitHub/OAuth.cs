@@ -29,12 +29,20 @@ internal sealed partial class GitHubClient
             Content = content
         };
 
+#if NET60_OR_GREATER
         return await SendMessageWithJsonResponseAsync(
             request,
             GitHubJsonContext.Default.DeviceCodeResponse,
             null,
             null,
             cancellationToken).ConfigureAwait(false);
+#else
+        return await SendMessageWithJsonResponseAsync<DeviceCodeResponse>(
+            request,
+            null,
+            null,
+            cancellationToken).ConfigureAwait(false);
+#endif
     }
 
     public static async Task<BearerToken> PollForOAuthTokenAsync(
@@ -51,15 +59,24 @@ internal sealed partial class GitHubClient
 
         while (true)
         {
+            HttpRequestMessage message = new(HttpMethod.Post, GitHubTokenUrl)
+            {
+                Content = content
+            };
+#if NET60_OR_GREATER
             TokenResponse tokenResponse = await SendMessageWithJsonResponseAsync(
-                new(HttpMethod.Post, GitHubTokenUrl)
-                {
-                    Content = content
-                },
+                message,
                 GitHubJsonContext.Default.TokenResponse,
                 null,
                 null,
                 cancellationToken).ConfigureAwait(false);
+#else
+            TokenResponse tokenResponse = await SendMessageWithJsonResponseAsync<TokenResponse>(
+                message,
+                null,
+                null,
+                cancellationToken).ConfigureAwait(false);
+#endif
 
             if (!string.IsNullOrEmpty(tokenResponse.AccessToken))
             {

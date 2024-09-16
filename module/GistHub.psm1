@@ -16,14 +16,26 @@ if ($IsCoreClr) {
     $innerMod = &$importModule -Assembly $mainModule -PassThru
 }
 else {
-    $innerMod = if ('GistHub.GistProvider' -as [type]) {
-        $modAssembly = [GistHub.GistProvider].Assembly
-        &$importModule -Assembly $modAssembly -Force -PassThru
+    if (-not ('GistHub.Shared.AssemblyResolver' -as [type])) {
+        Add-Type -Path ([Path]::Combine($PSScriptRoot, 'bin', 'net472', "$moduleName.Shared.dll"))
     }
-    else {
-        $isReload = $false
-        $modPath = [Path]::Combine($PSScriptRoot, 'bin', 'net472', "$moduleName.dll")
-        &$importModule -Name $modPath -ErrorAction Stop -PassThru
+
+    $appDomain = [AppDomain]::CurrentDomain
+    $resolver = [GistHub.Shared.AssemblyResolver]::ResolveHandler
+    $appDomain.add_AssemblyResolve($resolver)
+    try {
+        $innerMod = if ('GistHub.GistProvider' -as [type]) {
+            $modAssembly = [GistHub.GistProvider].Assembly
+            &$importModule -Assembly $modAssembly -Force -PassThru
+        }
+        else {
+            $isReload = $false
+            $modPath = [Path]::Combine($PSScriptRoot, 'bin', 'net472', "$moduleName.dll")
+            &$importModule -Name $modPath -ErrorAction Stop -PassThru
+        }
+    }
+    finally {
+        $appDomain.remove_AssemblyResolve($resolver)
     }
 }
 

@@ -13,6 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
+
+    <ProjectReference Include="../GistHub.Shared/GistHub.Shared.csproj" />
+    <InternalsVisibleTo Include="GistHubTests" />
+
     <!--
     S.M.A brings in these deps but we don't rely on it directly. It's up to
     the user to run with a newer PowerShell version that isn't affected.
@@ -23,22 +28,18 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="System.Management.Automation" Version="7.2.0" PrivateAssets="all" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <!--Cannot use newer versions due to S.R.CS.Unsafe depdendency issues.-->
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
-    <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
-
-    <ProjectReference Include="../GistHub.Shared/GistHub.Shared.csproj" />
-    <InternalsVisibleTo Include="GistHubTests" />
   </ItemGroup>
 </Project>
